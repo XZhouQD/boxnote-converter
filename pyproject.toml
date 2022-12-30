@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "boxnote-converter"
+version = "0.1.0"
+description = "A new boxnote converter"
+authors = ["XZhouQD <X.Zhou.QD@hotmail.com>"]
+license = "AGPLv3"
+readme = "README.md"
+packages = [{include = "boxnote_converter"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
