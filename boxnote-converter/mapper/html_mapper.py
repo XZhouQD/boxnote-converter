@@ -1,8 +1,8 @@
-'''
+"""
 BoxNote to HTML Type Mapper
 Author: XZhouQD
 Since: Dec 30 2022
-'''
+"""
 
 from typing import Dict, List
 import logging
@@ -48,7 +48,7 @@ tag_open_map = {
     'table_row': '<tr>',
     'table_cell': '<td colspan={colspan} rowspan={rowspan} colwidth={colwidth}>',
     'table_header': '<th>',
-    'image': '<img>',
+    'image': '<img src="{src}">',
     'highlight': '<mark style="background-color:{color}">',
     'heading': '<h{level}>',
     'font_size': '<span style="font-size:{size}">',
@@ -79,27 +79,22 @@ tag_close_map = {
     'font_color': '</span>',
 }
 
+
 def get_tag_open(tag: str, **kwargs) -> str:
-    '''
-    Get tag open
-    '''
     if tag in tag_open_map:
         return tag_open_map[tag].format(**kwargs)
     return ''
 
+
 def get_tag_close(tag: str, **kwargs) -> str:
-    '''
-    Get tag close
-    '''
     if tag in tag_close_map:
         return tag_close_map[tag].format(**kwargs)
     return ''
 
+
 def get_base_style() -> str:
-    '''
-    Get base style
-    '''
     return base_style
+
 
 def handle_text_marks(marks: List[Dict], text) -> str:
     tag_starts = [tag_open_map.get(mark['type'], '').format(**mark.get('attrs', {})) for mark in marks]
@@ -107,3 +102,12 @@ def handle_text_marks(marks: List[Dict], text) -> str:
     result = ''.join(tag_starts) + text + ''.join(tag_ends)
     logger.info(result)
     return result
+
+
+def handle_image(attrs: Dict[str, str], title) -> str:
+    file_name = attrs.get('fileName')
+    if file_name:
+        return tag_open_map.get('image').format(src=f'Box Notes Images/{title} Images/{file_name}') \
+               + tag_close_map.get('image')
+    return ''
+

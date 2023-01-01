@@ -1,25 +1,25 @@
-'''
+"""
 BoxNote to HTML Parser
 Author: XZhouQD
 Since: Dec 30 2022
-'''
+"""
 
 import json
 from typing import Dict, List, Union
 import logging
-from logging import Logger
 import mapper.html_mapper as html_mapper
+import pathlib
 
 
 log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-logging.basicConfig(format = log_format, level=logging.INFO)
+logging.basicConfig(format=log_format, level=logging.INFO)
 logger = logging.getLogger()
 
 
 def parse(boxnote_content: Union[str, bytes, bytearray], title: str) -> str:
-    '''
+    """
     Parse BoxNote to HTML
-    '''
+    """
     try:
         boxnote = json.loads(boxnote_content)
     except json.JSONDecodeError as e:
@@ -42,9 +42,9 @@ def parse(boxnote_content: Union[str, bytes, bytearray], title: str) -> str:
 
 
 def parse_content(content: Union[Dict, List], contents: List[str], ignore_paragraph=False) -> None:
-    '''
+    """
     Parse BoxNote content
-    '''
+    """
     if not content:
         return
 
@@ -152,15 +152,19 @@ def parse_content(content: Union[Dict, List], contents: List[str], ignore_paragr
         contents.append(html_mapper.get_tag_open('heading', **content.get('attrs', {})))
         parse_content(content.get('content', []), contents)
         contents.append(html_mapper.get_tag_close('heading',  **content.get('attrs', {})))
+    elif type_tag == 'image':
+        logger.info('image')
+        contents.append(html_mapper.handle_image(content.get('attrs', {}), title))
     
 
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('input', help='Input file')
-    parser.add_argument('output', help='Output file')
     args = parser.parse_args()
     with open(args.input, 'r') as f:
         content = f.read()
-    with open(args.output, 'w') as f:
-        f.write(parse(content, args.input.split('/')[-1].split('.')[0]))
+    title = pathlib.Path(args.input).stem
+    output_file = pathlib.Path(args.input).parent / pathlib.Path(f'{title}.html')
+    with open(output_file, 'w') as f:
+        f.write(parse(content, title))
