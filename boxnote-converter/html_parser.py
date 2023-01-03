@@ -155,6 +155,11 @@ def parse_content(content: Union[Dict, List], contents: List[str], ignore_paragr
     elif type_tag == 'image':
         logger.info('image')
         contents.append(html_mapper.handle_image(content.get('attrs', {}), title))
+    elif type_tag == 'link':
+        logger.info('link')
+        contents.append(html_mapper.get_tag_open('link', **content.get('attrs', {})))
+        parse_content(content.get('content', []), contents)
+        contents.append(html_mapper.get_tag_close('link'))
     
 
 if __name__ == '__main__':

@@ -53,6 +53,7 @@ tag_open_map = {
     'heading': '<h{level}>',
     'font_size': '<span style="font-size:{size}">',
     'font_color': '<span style="color:{color}">',
+    'link': '<a href="{href}">'
 }
 
 tag_close_map = {
@@ -77,6 +78,7 @@ tag_close_map = {
     'heading': '</h{level}>',
     'font_size': '</span>',
     'font_color': '</span>',
+    'link': '</a>'
 }
 
 
@@ -109,5 +111,8 @@ def handle_image(attrs: Dict[str, str], title) -> str:
     if file_name:
         return tag_open_map.get('image').format(src=f'Box Notes Images/{title} Images/{file_name}') \
                + tag_close_map.get('image')
+    # box_shared_link = attrs.get('boxSharedLink')
+    # if box_shared_link:
+    #     return tag_open_map.get('image').format(src=box_shared_link) + tag_close_map.get('image')
     return ''
 
