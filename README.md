@@ -33,6 +33,8 @@ This is suitable for the new format of BoxNotes after August 2022 (see [this iss
  - Image (local)
  - Hyperlink
 
-## Not supported
+## Not supported yet
+ - Formatting
+    - Alignment
  - Image (Box shared link)
  - File preview
