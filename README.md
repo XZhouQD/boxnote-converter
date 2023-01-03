@@ -38,3 +38,8 @@ This is suitable for the new format of BoxNotes after August 2022 (see [this iss
     - Alignment
  - Image (Box shared link)
  - File preview
+ - Code Block
+ - Block Quote
+ - Divier Line
+ - Table of Contents (?)
+ - Callout
