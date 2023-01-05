@@ -32,6 +32,7 @@ This is suitable for the new format of BoxNotes after August 2022 (see [this iss
     - highlight
  - Image (local)
  - Hyperlink
+ - Divider Line (Horizontal Rule)
 
 ## Not supported yet
  - Formatting
@@ -40,6 +41,5 @@ This is suitable for the new format of BoxNotes after August 2022 (see [this iss
  - File preview
  - Code Block
  - Block Quote
- - Divier Line
  - Table of Contents (?)
  - Callout

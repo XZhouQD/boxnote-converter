@@ -44,6 +44,7 @@ tag_open_map = {
     'check_list': '<ul style="list-style-type:none">',
     'check_list_item': '<li><input type="checkbox">',
     'check_list_item_checked': '<li><input type="checkbox" checked>',
+    'horizontal_rule': '<hr/>',
     'table': '<table>',
     'table_row': '<tr>',
     'table_cell': '<td colspan={colspan} rowspan={rowspan} colwidth={colwidth}>',
