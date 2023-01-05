@@ -32,6 +32,7 @@ This is suitable for the new format of BoxNotes after August 2022 (see [this iss
     - highlight
  - Image (local)
  - Hyperlink
+ - Block Quote
 
 ## Not supported yet
  - Formatting
@@ -39,7 +40,6 @@ This is suitable for the new format of BoxNotes after August 2022 (see [this iss
  - Image (Box shared link)
  - File preview
  - Code Block
- - Block Quote
  - Divier Line
  - Table of Contents (?)
  - Callout

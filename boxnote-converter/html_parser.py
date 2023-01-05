@@ -69,6 +69,11 @@ def parse_content(content: Union[Dict, List], contents: List[str], ignore_paragr
     elif type_tag == 'paragraph' and ignore_paragraph:
         logger.info('paragraph ignore')
         parse_content(content.get('content', []), contents)
+    elif type_tag == 'blockquote':
+        logger.info('blockquote')
+        contents.append(html_mapper.get_tag_open('blockquote'))
+        parse_content(content.get('content', []), contents)
+        contents.append(html_mapper.get_tag_close('blockquote'))
     elif type_tag == 'text':
         logger.info('text')
         contents.append(html_mapper.get_tag_open('text'))
