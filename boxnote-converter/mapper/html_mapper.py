@@ -94,7 +94,6 @@ tag_close_map = {
 
 
 def get_tag_open(tag: str, **kwargs) -> str:
-    print(tag, kwargs)
     if tag in tag_open_map:
         return tag_open_map[tag].format(**kwargs)
     return ''
@@ -114,7 +113,6 @@ def handle_text_marks(marks: List[Dict], text) -> str:
     tag_starts = [tag_open_map.get(mark['type'], '').format(**mark.get('attrs', {})) for mark in marks]
     tag_ends = [tag_close_map.get(mark['type'], '') for mark in marks[::-1]]
     result = ''.join(tag_starts) + text + ''.join(tag_ends)
-    logger.info(result)
     return result
 
 
