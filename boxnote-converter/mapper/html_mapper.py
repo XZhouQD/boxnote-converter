@@ -42,8 +42,7 @@ tag_open_map = {
     'bullet_list': '<ul>',
     'list_item': '<li>',
     'check_list': '<ul style="list-style-type:none">',
-    'check_list_item': '<li><input type="checkbox">',
-    'check_list_item_checked': '<li><input type="checkbox" checked>',
+    'check_list_item': '<li><input type="checkbox" {checked}>',
     'table': '<table>',
     'table_row': '<tr>',
     'table_cell': '<td colspan={colspan} rowspan={rowspan} colwidth={colwidth}>',
@@ -68,7 +67,6 @@ tag_close_map = {
     'list_item': '</li>',
     'check_list': '</ul>',
     'check_list_item': '</li>',
-    'check_list_item_checked': '</li>',
     'table': '</table>',
     'table_row': '</tr>',
     'table_cell': '</td>',
@@ -83,6 +81,7 @@ tag_close_map = {
 
 
 def get_tag_open(tag: str, **kwargs) -> str:
+    print(tag, kwargs)
     if tag in tag_open_map:
         return tag_open_map[tag].format(**kwargs)
     return ''
