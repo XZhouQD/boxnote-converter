@@ -72,18 +72,17 @@ def parse_content(content: Union[Dict, List], contents: List[str], ignore_paragr
         contents.append(html_mapper.get_tag_open('text'))
         contents.append(html_mapper.handle_text_marks(content.get('marks', []), content.get('text', '')))
         contents.append(html_mapper.get_tag_close('text'))
-    elif type_tag in ['strong', 'em', 'underline', 'strikethrough', 'ordered_list', 'bullet_list', 'list_item',
-                      'check_list', 'table', 'table_row', 'table_cell', 'heading', 'link', 'font_size', 'font_color']:
-        contents.append(html_mapper.get_tag_open(type_tag, **content.get('attrs', {})))
-        parse_content(content.get('content', []), contents)
-        contents.append(html_mapper.get_tag_close(type_tag, **content.get('attrs', {})))
     elif type_tag == 'check_list_item':
         contents.append(html_mapper.get_tag_open('check_list_item', checked="checked" if content['attrs']['checked'] else ""))
-        logger.info(content['attrs']['checked'])
         parse_content(content.get('content', []), contents, ignore_paragraph=True)
         contents.append(html_mapper.get_tag_close('check_list_item'))
     elif type_tag == 'image':
         contents.append(html_mapper.handle_image(content.get('attrs', {}), title))
+    elif type_tag in ['strong', 'em', 'underline', 'strikethrough', 'ordered_list', 'bullet_list', 'list_item', "blockquote",
+                      'check_list', 'table', 'table_row', 'table_cell', 'heading', 'link', 'font_size', 'font_color', "horizontal_rule"]:
+        contents.append(html_mapper.get_tag_open(type_tag, **content.get('attrs', {})))
+        parse_content(content.get('content', []), contents)
+        contents.append(html_mapper.get_tag_close(type_tag, **content.get('attrs', {})))
     
 
 if __name__ == '__main__':

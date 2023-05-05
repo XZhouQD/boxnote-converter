@@ -27,6 +27,15 @@ table tr:nth-child(even) {
 table tr :hover {
     background-color: #66ccff;
 }
+blockquote {
+    display: block;
+    border-left: 6px solid #d3d3d3;
+    padding-left: 16px;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 40px;
+    margin-inline-end: 40px;
+}
 </style>
 '''
 
@@ -39,10 +48,12 @@ tag_open_map = {
     'underline': '<u>',
     'strikethrough': '<s>',
     'ordered_list': '<ol>',
+    'blockquote': '<blockquote>',
     'bullet_list': '<ul>',
     'list_item': '<li>',
     'check_list': '<ul style="list-style-type:none">',
     'check_list_item': '<li><input type="checkbox" {checked}>',
+    'horizontal_rule': '<hr/>',
     'table': '<table>',
     'table_row': '<tr>',
     'table_cell': '<td colspan={colspan} rowspan={rowspan} colwidth={colwidth}>',
@@ -63,6 +74,7 @@ tag_close_map = {
     'underline': '</u>',
     'strikethrough': '</s>',
     'ordered_list': '</ol>',
+    'blockquote': '</blockquote>',
     'bullet_list': '</ul>',
     'list_item': '</li>',
     'check_list': '</ul>',
@@ -76,7 +88,8 @@ tag_close_map = {
     'heading': '</h{level}>',
     'font_size': '</span>',
     'font_color': '</span>',
-    'link': '</a>'
+    'link': '</a>',
+    'horizontal_rule': ''
 }
 
 
