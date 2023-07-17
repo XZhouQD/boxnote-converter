@@ -6,6 +6,8 @@ Since: Dec 30 2022
 
 from typing import Dict, List
 import logging
+import pathlib
+import requests
 
 
 logger = logging.getLogger()
@@ -14,15 +16,17 @@ logger = logging.getLogger()
 base_style = '''<style type="text/css">
 table {
     min-width: 500px;
-    border: 1px solid #ccc;
+    border: 1px solid #000;
     cellspacing: 0;
     text-align: center;
 }
 table tr:nth-child(odd) {
     background-color: #ddd;
+    border: 1px solid #000;
 }
 table tr:nth-child(even) {
     background-color: #fff;
+    border: 1px solid #000;
 }
 table tr :hover {
     background-color: #66ccff;
@@ -36,13 +40,12 @@ blockquote {
     margin-inline-start: 40px;
     margin-inline-end: 40px;
 }
-</style>
-'''
+</style>'''
 
 
 tag_open_map = {
-    'paragraph': '<p>',
-    'text': '<span>',
+    'paragraph': '<p style="text-align: {alignment}">',
+    #'text': '',
     'strong': '<strong>',
     'em': '<em>',
     'underline': '<u>',
@@ -52,23 +55,25 @@ tag_open_map = {
     'bullet_list': '<ul>',
     'list_item': '<li>',
     'check_list': '<ul style="list-style-type:none">',
-    'check_list_item': '<li><input type="checkbox" {checked}>',
+    'check_list_item': '<li><input type="checkbox" {checked}>[{x}]',
     'horizontal_rule': '<hr/>',
     'table': '<table>',
     'table_row': '<tr>',
     'table_cell': '<td colspan={colspan} rowspan={rowspan} colwidth={colwidth}>',
     'table_header': '<th>',
     'image': '<img src="{src}">',
-    'highlight': '<mark style="background-color:{color}">',
+    'highlight': '<span style="background-color:{color}">',
     'heading': '<h{level}>',
     'font_size': '<span style="font-size:{size}">',
     'font_color': '<span style="color:{color}">',
-    'link': '<a href="{href}">'
+    'link': '<a href="{href}">',
+    'code_block': '<pre><code>',
+    'call_out_box': '<span style="background-color:{backgroundColor}">{emoji}'
 }
 
 tag_close_map = {
     'paragraph': '</p>',
-    'text': '</span>',
+    #'text': '',
     'strong': '</strong>',
     'em': '</em>',
     'underline': '</u>',
@@ -84,25 +89,27 @@ tag_close_map = {
     'table_cell': '</td>',
     'table_header': '</th>',
     'image': '</img>',
-    'highlight': '</mark>',
+    'highlight': '</span>',
     'heading': '</h{level}>',
     'font_size': '</span>',
     'font_color': '</span>',
     'link': '</a>',
-    'horizontal_rule': ''
+    'horizontal_rule': '',
+    'code_block': '</code></pre>',
+    'call_out_box': '</span>'
 }
 
 
 def get_tag_open(tag: str, **kwargs) -> str:
     if tag in tag_open_map:
         return tag_open_map[tag].format(**kwargs)
-    return ''
+    return None
 
 
 def get_tag_close(tag: str, **kwargs) -> str:
     if tag in tag_close_map:
         return tag_close_map[tag].format(**kwargs)
-    return ''
+    return None
 
 
 def get_base_style() -> str:
@@ -116,13 +123,32 @@ def handle_text_marks(marks: List[Dict], text) -> str:
     return result
 
 
-def handle_image(attrs: Dict[str, str], title) -> str:
+def handle_image(attrs: Dict[str, str], title, workdir, token=None) -> str:
+    if token:
+        box_file_id = attrs.get('boxFileId')
+        box_file_name = attrs.get('fileName')
+        logger.info(f'Downloading image {box_file_name}')
+        if box_file_id:
+            download_image(box_file_id, box_file_name, workdir, token)
+            return tag_open_map.get('image').format(src=(workdir / pathlib.Path(f'{box_file_id}_{box_file_name}')).absolute()) \
+                   + tag_close_map.get('image')
     file_name = attrs.get('fileName')
     if file_name:
-        return tag_open_map.get('image').format(src=f'Box Notes Images/{title} Images/{file_name}') \
+        return tag_open_map.get('image').format(src=(workdir / pathlib.Path(f'Box Notes Images/{title} Images/{file_name}')).absolute()) \
                + tag_close_map.get('image')
-    # box_shared_link = attrs.get('boxSharedLink')
-    # if box_shared_link:
-    #     return tag_open_map.get('image').format(src=box_shared_link) + tag_close_map.get('image')
     return ''
 
+
+def download_image(box_file_id: str, file_name: str, workdir, token: str) -> None:
+    if not token.startswith("Bearer "):
+        token = "Bearer " + token
+    headers = {
+        'Authorization': token
+    }
+    url = f'https://api.box.com/2.0/files/{box_file_id}/content'
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        with open((workdir / pathlib.Path(f'{box_file_id}_{file_name}')).absolute(), 'wb') as f:
+            f.write(response.content)
+    else:
+        logger.error(f'Failed to download image {file_name}')

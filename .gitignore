@@ -133,3 +133,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Resources
+resource/
+working/
+*.docx
+*.boxnote
