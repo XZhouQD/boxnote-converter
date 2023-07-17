@@ -30,16 +30,14 @@ This is suitable for the new format of BoxNotes after August 2022 (see [this iss
     - fort-size
     - font-color
     - highlight
+    - alignment
  - Image (local)
  - Hyperlink
  - Block Quote
  - Divider Line (Horizontal Rule)
-
-## Not supported yet
- - Formatting
-    - Alignment
- - Image (Box shared link)
- - File preview
  - Code Block
- - Table of Contents (?)
  - Callout
+
+## No support
+ - File preview
+ - Table of Contents (?)
