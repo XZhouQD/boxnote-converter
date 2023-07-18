@@ -42,8 +42,10 @@ def parse(boxnote_content: Union[str, bytes, bytearray], title: str, workdir, ac
     parse_content(boxnote.get('doc', {}).get('content', {}), contents, title, workdir)
 
     contents = list(filter(lambda x: x is not None, contents))
-    result = '\n'.join(contents)
-    result = str.replace(result, '<p style="text-align: left">\n</p>', '')
+    contents.extend(['</body>', '</html>'])
+    result = ''.join(contents)
+    # remove empty paragraph
+    result = str.replace(result, '<p style="text-align: left"></p>', '')
     return result
 
 
@@ -106,13 +108,14 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('input', help='Input file')
     parser.add_argument('-d', '--dir', help='Work directory')
-    parser.add_argument('-t', '--token', nargs='?', help='Box access token', )
+    parser.add_argument('-t', '--token', nargs='?', help='Box access token')
+    parser.add_argument('-o', '--output', nargs='?', help='Output file')
     args = parser.parse_args()
     workdir = pathlib.Path(args.dir) if args.dir else pathlib.Path.cwd()
     input_file = workdir / pathlib.Path(args.input)
-    with open(input_file, 'r') as f:
+    with open(input_file, 'r', encoding='utf-8') as f:
         content = f.read()
     title = input_file.stem
-    output_file = workdir / pathlib.Path(f'{title}.html')
-    with open(output_file, 'w') as f:
+    output_file = workdir / pathlib.Path(args.output) if args.output else workdir / pathlib.Path(f'{title}.html')
+    with open(output_file, 'w', encoding='utf-8') as f:
         f.write(parse(content, title, workdir, args.token if args.token else None))

@@ -7,6 +7,7 @@ Since: Dec 30 2022
 from typing import Dict, List
 import logging
 import pathlib
+import re
 import requests
 
 
@@ -137,23 +138,31 @@ def handle_text_marks(marks: List[Dict], text) -> str:
     return result
 
 
-def handle_image(attrs: Dict[str, str], title, workdir, token=None) -> str:
+def handle_image(attrs: Dict[str, str], title: str, workdir: pathlib.Path, token=None) -> str:
     if token:
         box_file_id = attrs.get('boxFileId')
         box_file_name = attrs.get('fileName')
         logger.info(f'Downloading image {box_file_name}')
         if box_file_id:
-            download_image(box_file_id, box_file_name, workdir, token)
-            return tag_open_map.get('image').format(src=(workdir / pathlib.Path(f'{box_file_id}_{box_file_name}')).absolute()) \
-                   + tag_close_map.get('image')
+            downloaded_path = download_image(box_file_id, box_file_name, workdir, title, token)
+            if downloaded_path:
+                return tag_open_map.get('image').format(src=downloaded_path) + tag_close_map.get('image')
     file_name = attrs.get('fileName')
     if file_name:
-        return tag_open_map.get('image').format(src=(workdir / pathlib.Path(f'Box Notes Images/{title} Images/{file_name}')).absolute()) \
-               + tag_close_map.get('image')
+        file_stem = pathlib.Path(file_name).stem
+        file_ext = pathlib.Path(file_name).suffix
+        image_dir = workdir / pathlib.Path(f'Box Notes Images/{title} Images/')
+        matches = list(image_dir.glob(f'{file_stem}*{file_ext}'))
+        # support file names with box versions
+        # e.g. "image.png", "image (1234567890).png"
+        pattern = re.compile(f'{file_stem}\s*(\([0-9]+\))*{file_ext}')
+        matches = [match for match in matches if pattern.match(match.name)]
+        if len(matches) > 0:
+            return tag_open_map.get('image').format(src=pathlib.Path(*matches[0].parts[1:])) + tag_close_map.get('image')
     return ''
 
 
-def download_image(box_file_id: str, file_name: str, workdir, token: str) -> None:
+def download_image(box_file_id: str, file_name: str, workdir: pathlib.Path, title: str, token: str) -> pathlib.Path:
     if not token.startswith("Bearer "):
         token = "Bearer " + token
     headers = {
@@ -162,7 +171,10 @@ def download_image(box_file_id: str, file_name: str, workdir, token: str) -> Non
     url = f'https://api.box.com/2.0/files/{box_file_id}/content'
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
-        with open((workdir / pathlib.Path(f'{box_file_id}_{file_name}')).absolute(), 'wb') as f:
+        file_path = pathlib.Path(f'{box_file_id}_{file_name}')
+        with open(workdir / file_path, 'wb') as f:
             f.write(response.content)
+        return file_path
     else:
         logger.error(f'Failed to download image {file_name}')
+        return None
