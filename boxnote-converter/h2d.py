@@ -5,6 +5,7 @@ Removed some configurable options for simplification.
 Added support for some other tags for boxnote-converter
 '''
 
+import pathlib
 import re
 import os
 from urllib.parse import urlparse
@@ -75,7 +76,7 @@ styles = {
 
 class HtmlToDocx(HTMLParser):
 
-    def __init__(self):
+    def __init__(self, workdir=None):
         super().__init__()
         self.table_row_selectors = [
             'table > tr',
@@ -85,6 +86,7 @@ class HtmlToDocx(HTMLParser):
         ]
         self.table_style = DEFAULT_TABLE_STYLE
         self.paragraph_style = DEFAULT_PARAGRAPH_STYLE
+        self.workdir = workdir
 
     def set_initial_attrs(self, document=None):
         self.tags = {
@@ -104,6 +106,7 @@ class HtmlToDocx(HTMLParser):
     def copy_settings_from(self, other):
         self.table_style = other.table_style
         self.paragraph_style = other.paragraph_style
+        self.workdir = other.workdir
 
     def get_cell_html(self, soup):
         return ' '.join([str(i) for i in soup.contents])
@@ -201,11 +204,12 @@ class HtmlToDocx(HTMLParser):
     def handle_img(self, current_attrs):
         src = current_attrs['src']
         if src:
+            src_path = pathlib.Path(src) if not self.workdir else self.workdir / pathlib.Path(src)
             try:
                 if isinstance(self.doc, docx.document.Document):
-                    self.doc.add_picture(src)
+                    self.doc.add_picture(str(src_path.absolute()))
                 else:
-                    self.add_image_to_cell(self.doc, src)
+                    self.add_image_to_cell(str(src_path.absolute()))
             except FileNotFoundError:
                 src = None
 

@@ -139,3 +139,5 @@ resource/
 working/
 *.docx
 *.boxnote
+
+!example/*

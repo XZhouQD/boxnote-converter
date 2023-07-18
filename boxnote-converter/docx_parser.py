@@ -8,7 +8,7 @@ def parse_docx(token, workdir, input_file, title, output_file, output_docx):
         content = f.read()
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(parse(content, title, workdir, token))
-    docx_parser = HtmlToDocx()
+    docx_parser = HtmlToDocx(workdir)
     docx_parser.table_style = 'TableGrid'
     docx_parser.parse_html_file(output_file.absolute(), output_docx.absolute())
 
