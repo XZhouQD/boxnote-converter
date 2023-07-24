@@ -9,6 +9,8 @@ packages = [{include = "boxnote_converter"}]
 
 [tool.poetry.dependencies]
 python = "^3.8"
+python-docx = "^0.8.11"
+beautifulsoup4 = "^4.12.2"
 
 
 [build-system]
