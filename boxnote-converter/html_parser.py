@@ -8,7 +8,7 @@ import json
 from typing import Dict, List, Union
 import logging
 import mapper.html_mapper as html_mapper
-import pathlib
+from pathlib import Path
 
 
 log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -17,7 +17,11 @@ logger = logging.getLogger()
 token = None
 
 
-def parse(boxnote_content: Union[str, bytes, bytearray], title: str, workdir, access_token=None) -> str:
+def parse(
+        boxnote_content: Union[str, bytes, bytearray],
+        title: str,
+        workdir: Path,
+        access_token: str = None) -> str:
     """
     Parse BoxNote to HTML
     """
@@ -49,7 +53,12 @@ def parse(boxnote_content: Union[str, bytes, bytearray], title: str, workdir, ac
     return result
 
 
-def parse_content(content: Union[Dict, List], contents: List[str], title, workdir, ignore_paragraph=False) -> None:
+def parse_content(
+        content: Union[Dict, List],
+        contents: List[str],
+        title: str,
+        workdir: Path,
+        ignore_paragraph: bool = False) -> None:
     """
     Parse BoxNote content
     """
@@ -111,11 +120,11 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--token', nargs='?', help='Box access token')
     parser.add_argument('-o', '--output', nargs='?', help='Output file')
     args = parser.parse_args()
-    workdir = pathlib.Path(args.dir) if args.dir else pathlib.Path.cwd()
-    input_file = workdir / pathlib.Path(args.input)
+    workdir = Path(args.dir) if args.dir else Path.cwd()
+    input_file = workdir / Path(args.input)
     with open(input_file, 'r', encoding='utf-8') as f:
         content = f.read()
     title = input_file.stem
-    output_file = workdir / pathlib.Path(args.output) if args.output else workdir / pathlib.Path(f'{title}.html')
+    output_file = workdir / Path(args.output) if args.output else workdir / Path(f'{title}.html')
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(parse(content, title, workdir, args.token if args.token else None))
