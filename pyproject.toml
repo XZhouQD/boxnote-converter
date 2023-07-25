@@ -5,12 +5,13 @@ description = "A new boxnote converter"
 authors = ["XZhouQD <X.Zhou.QD@hotmail.com>"]
 license = "AGPLv3"
 readme = "README.md"
-packages = [{include = "boxnote_converter"}]
+packages = [{include = "boxnote-converter"}]
 
 [tool.poetry.dependencies]
 python = "^3.8"
 python-docx = "^0.8.11"
 beautifulsoup4 = "^4.12.2"
+requests = "^2.31.0"
 
 
 [build-system]
