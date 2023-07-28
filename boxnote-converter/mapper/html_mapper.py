@@ -83,7 +83,7 @@ tag_open_map = {
     'font_color': '<span style="color:{color}">',
     'link': '<a href="{href}">',
     'code_block': '<pre><code>',
-    'call_out_box': '<span style="background-color:{backgroundColor}">{emoji}'
+    'call_out_box': '<span style="background-color:{backgroundColor}"><p>{emoji}'
 }
 
 tag_close_map = {
@@ -111,7 +111,7 @@ tag_close_map = {
     'link': '</a>',
     'horizontal_rule': '',
     'code_block': '</code></pre>',
-    'call_out_box': '</span>'
+    'call_out_box': '</p></span>'
 }
 
 
@@ -138,13 +138,13 @@ def handle_text_marks(marks: List[Dict], text: str) -> str:
     return result
 
 
-def handle_image(attrs: Dict[str, str], title: str, workdir: Path, token: str = None) -> str:
+def handle_image(attrs: Dict[str, str], title: str, workdir: Path, token: str = None, user: str = None) -> str:
     if token:
         box_file_id = attrs.get('boxFileId')
         box_file_name = attrs.get('fileName')
         logger.info(f'Downloading image {box_file_name}')
         if box_file_id:
-            downloaded_path = download_image(box_file_id, box_file_name, workdir, token)
+            downloaded_path = download_image(box_file_id, box_file_name, workdir, token, user)
             if downloaded_path:
                 return tag_open_map.get('image').format(src=downloaded_path) + tag_close_map.get('image')
     file_name = attrs.get('fileName')
@@ -162,19 +162,23 @@ def handle_image(attrs: Dict[str, str], title: str, workdir: Path, token: str = 
     return ''
 
 
-def download_image(box_file_id: str, file_name: str, workdir: Path, token: str) -> Path:
+def download_image(box_file_id: str, file_name: str, workdir: Path, token: str, user: str) -> Path:
     if not token.startswith("Bearer "):
         token = "Bearer " + token
     headers = {
-        'Authorization': token
+        'Authorization': token,
+        'As-User': user
     }
     url = f'https://api.box.com/2.0/files/{box_file_id}/content'
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
         file_path = Path(f'{box_file_id}_{file_name}')
+        logger.info(f'Saving image to {file_path}')
         with open(workdir / file_path, 'wb') as f:
             f.write(response.content)
         return file_path
     else:
         logger.error(f'Failed to download image {file_name}')
+        logger.info(f'Response status code: {response.status_code}')
+        logger.info(f'Response content: {response.content}')
         return None

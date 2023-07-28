@@ -15,18 +15,22 @@ log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 logging.basicConfig(format=log_format, level=logging.INFO)
 logger = logging.getLogger()
 token = None
+user = None
 
 
 def parse(
         boxnote_content: Union[str, bytes, bytearray],
         title: str,
         workdir: Path,
-        access_token: str = None) -> str:
+        access_token: str = None,
+        user_id: str = None) -> str:
     """
     Parse BoxNote to HTML
     """
     global token
     token = access_token if access_token else token
+    global user
+    user = user_id if user_id else user
     try:
         boxnote = json.loads(boxnote_content)
     except json.JSONDecodeError as e:
@@ -104,7 +108,7 @@ def parse_content(
         parse_content(content.get('content', []), contents, title, workdir, ignore_paragraph=True)
         contents.append(html_mapper.get_tag_close(type_tag, **content.get('attrs', {})))
     elif type_tag == 'image':
-        contents.append(html_mapper.handle_image(content.get('attrs', {}), title, workdir, token))
+        contents.append(html_mapper.handle_image(content.get('attrs', {}), title, workdir, token, user))
     elif type_tag in ['strong', 'em', 'underline', 'strikethrough', 'ordered_list', 'bullet_list', 'blockquote', 'code_block', 
                       'check_list', 'table', 'table_row', 'heading', 'link', 'font_size', 'font_color', 'horizontal_rule']:
         contents.append(html_mapper.get_tag_open(type_tag, **content.get('attrs', {})))
@@ -119,12 +123,15 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--dir', help='Work directory')
     parser.add_argument('-t', '--token', nargs='?', help='Box access token')
     parser.add_argument('-o', '--output', nargs='?', help='Output file')
+    parser.add_argument('-u', '--user', nargs='?', help='Box user id')
     args = parser.parse_args()
     workdir = Path(args.dir) if args.dir else Path.cwd()
     input_file = workdir / Path(args.input)
     with open(input_file, 'r', encoding='utf-8') as f:
         content = f.read()
     title = input_file.stem
+    token = args.token if args.token else None
+    user_id = args.user if args.user else None
     output_file = workdir / Path(args.output) if args.output else workdir / Path(f'{title}.html')
     with open(output_file, 'w', encoding='utf-8') as f:
-        f.write(parse(content, title, workdir, args.token if args.token else None))
+        f.write(parse(content, title, workdir, token, user_id))

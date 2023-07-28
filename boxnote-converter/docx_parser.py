@@ -15,11 +15,12 @@ def parse_docx(
         input_file: Path,
         title: str,
         output_file: Path,
-        output_docx: Path) -> None:
+        output_docx: Path,
+        user_id: str) -> None:
     with open(input_file, 'r', encoding='utf-8') as f:
         content = f.read()
     with open(output_file, 'w', encoding='utf-8') as f:
-        f.write(parse(content, title, workdir, token))
+        f.write(parse(content, title, workdir, token, user_id))
     docx_parser = HtmlToDocx(workdir)
     docx_parser.table_style = 'TableGrid'
     docx_parser.parse_html_file(output_file.absolute(), output_docx.absolute())
@@ -30,6 +31,7 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--dir', help='Work directory')
     parser.add_argument('-t', '--token', nargs='?', help='Box access token')
     parser.add_argument('-o', '--output', nargs='?', help='Output file name')
+    parser.add_argument('-u', '--user', nargs='?', help='Box user id')
     args = parser.parse_args()
     workdir = Path(args.dir) if args.dir else Path.cwd()
     input_file = workdir / Path(args.input)
@@ -38,4 +40,5 @@ if __name__ == '__main__':
     output_docx_file = Path(args.output) if args.output else Path(input_file.name)
     output_docx = workdir / output_docx_file
     token = args.token if args.token else None
-    parse_docx(token, workdir, input_file, title, output_file, output_docx)
+    user_id = args.user if args.user else None
+    parse_docx(token, workdir, input_file, title, output_file, output_docx, user_id)
