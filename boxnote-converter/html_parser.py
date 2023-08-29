@@ -20,8 +20,8 @@ user = None
 
 def parse(
         boxnote_content: Union[str, bytes, bytearray],
-        title: str,
-        workdir: Path,
+        title: str = None,
+        workdir: Path = None,
         access_token: str = None,
         user_id: str = None) -> str:
     """
